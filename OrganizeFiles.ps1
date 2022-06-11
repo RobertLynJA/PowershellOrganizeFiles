@@ -4,6 +4,11 @@
 #Parameters
 #The script should take 2 arguments $source and $destination (for the source and destination folders).
 
+param([string]$source, [string]$destination) 
+
+echo "Source: $source"
+echo "Destination: $destination"
+
 #Functions
 #2)	Functions
 

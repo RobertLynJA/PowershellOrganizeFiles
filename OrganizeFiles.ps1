@@ -17,7 +17,7 @@ echo "Destination: $destination"
 #the create switch is specified, a new folder should be created using the name of the folder/directory that was 
 #passed to the function.
 
-function CheckFolder([string]$directory, [boolean]$create) 
+function CheckFolder([string]$directory, [switch]$create) 
 {
 	$exists = Test-Path $directory -PathType Container
 
@@ -34,14 +34,16 @@ function CheckFolder([string]$directory, [boolean]$create)
 	return $exists
 }
 
-$result = CheckFolder "C:\Robert" $TRUE
+$result = CheckFolder "C:\Robert" -create
 echo $result
 
 #Create a function named DisplayFolderStatistics to display folder statistics for a directory/path that is passed 
 #to it. Output should include the name of the folder, number of files in the folder, and total size of all files in 
 #that directory.
 
-
+function DisplayFolderStatistics([string]$directory) {
+	
+}
 
 
 #3)	Main processing

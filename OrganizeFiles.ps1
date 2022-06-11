@@ -34,7 +34,7 @@ function CheckFolder([string]$directory, [switch]$create)
 	return $exists
 }
 
-$result = CheckFolder "C:\Robert" -create
+$result = CheckFolder "C:\Robert" #-create
 echo $result
 
 #Create a function named DisplayFolderStatistics to display folder statistics for a directory/path that is passed 
@@ -42,9 +42,25 @@ echo $result
 #that directory.
 
 function DisplayFolderStatistics([string]$directory) {
+	$folderInfo = New-Object System.Collections.Generic.Dictionary"[string,string]"
+		
+	$folder = Get-Item $directory
+	$files = Get-ChildItem $directory
+	$total = 0
+
+	foreach ($file in $files)
+	{
+		$total += $file.Length
+	}
 	
+	$folderInfo.Add("Name", $folder.Name)
+	$folderInfo.Add("Files", $files.Length.ToString())
+	$folderInfo.Add("Size", $total)
+
+	return $folderInfo
 }
 
+DisplayFolderStatistics "c:\users"
 
 #3)	Main processing
 

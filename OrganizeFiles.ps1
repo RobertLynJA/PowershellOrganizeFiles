@@ -20,6 +20,7 @@ function CheckFolder([string]$directory, [switch]$create)
 
 	if (-NOT($exists) -AND $create) {
 		New-Item -Path $directory -ItemType Directory
+		$exists = Test-Path $directory -PathType Container
 	}
 
 	return $exists
@@ -30,8 +31,8 @@ function CheckFolder([string]$directory, [switch]$create)
 #that directory.
 
 function DisplayFolderStatistics([string]$directory) {
-	$folderInfo = New-Object System.Collections.Generic.Dictionary"[string,string]"
-		
+	$folderInfo = "" | Select Name, Files, Size
+
 	$folder = Get-Item $directory
 	$files = Get-ChildItem $directory
 	$total = 0
@@ -40,10 +41,10 @@ function DisplayFolderStatistics([string]$directory) {
 	{
 		$total += $file.Length
 	}
-	
-	$folderInfo.Add("Name", $folder.Name)
-	$folderInfo.Add("Files", $files.Length.ToString())
-	$folderInfo.Add("Size", $total)
+
+	$folderInfo.Name = $folder.Name
+	$folderInfo.Files = $files.Length
+	$folderInfo.Size = $total
 
 	return $folderInfo
 }

@@ -14,8 +14,7 @@ param([Parameter(Mandatory=$true)][string]$source, [Parameter(Mandatory=$true)][
 #the create switch is specified, a new folder should be created using the name of the folder/directory that was 
 #passed to the function.
 
-function CheckFolder([string]$directory, [switch]$create) 
-{
+function CheckFolder([string]$directory, [switch]$create) {
 	$exists = Test-Path $directory -PathType Container
 
 	if (-NOT($exists) -AND $create) {
@@ -31,7 +30,7 @@ function CheckFolder([string]$directory, [switch]$create)
 #that directory.
 
 function DisplayFolderStatistics([string]$directory) {
-	$folderInfo = "" | Select Name, Files, Size
+	$folderInfo = "" | Select Path, Files, Size
 
 	$folder = Get-Item $directory
 	$files = Get-ChildItem $directory
@@ -42,7 +41,7 @@ function DisplayFolderStatistics([string]$directory) {
 		$total += $file.Length
 	}
 
-	$folderInfo.Name = $folder.Name
+	$folderInfo.Path = $folder.FullName
 	$folderInfo.Files = $files.Length
 	$folderInfo.Size = $total
 
@@ -53,8 +52,7 @@ function DisplayFolderStatistics([string]$directory) {
 
 #a) Test for existence of the source folder (using the CheckFolder function).
 
-if (CheckFolder $source) 
-{
+if (CheckFolder $source) {
 	Write-Host "Testing Destination Directory - $destination"
 
 	if (CheckFolder $destination -create) {
@@ -62,16 +60,32 @@ if (CheckFolder $source)
 		$length = $files.Length
 		Write-Host "Got files: $length"
 		
-		foreach ($file in $files)
-		{
-			Copy-Item $file.FullName $destination
+		foreach ($file in $files) {
+			$ext = $file.Extension.Replace(".", "")
+			$extdestdir = "$destination\$ext"
+
+			if (-NOT(CheckFolder $extdestdir -create)) {
+				Write-Host "Cannot create $extdestdir"
+				exit
+			}
+
+			Copy-Item $file.FullName $extdestdir
 			$name = $file.Name
-			Write-Host "Copying $name from $source to $destination"
+			Write-Host "Copying $name from $source to $extdestdir"
+		}
+
+		$dirs = Get-ChildItem $destination -Directory 
+		
+		foreach ($dir in $dirs) {
+			DisplayFolderStatistics $dir
 		}
 	}
+	else {
+		Write-Host "Cannot create $destination"
+		exit
+	}
 }
-else 
-{
+else {
 	Write-Host "$source  - does not exist"
 }
 

@@ -4,10 +4,7 @@
 #Parameters
 #The script should take 2 arguments $source and $destination (for the source and destination folders).
 
-param([string]$source, [string]$destination) 
-
-echo "Source: $source"
-echo "Destination: $destination"
+param([Parameter(Mandatory=$true)][string]$source, [Parameter(Mandatory=$true)][string]$destination) 
 
 #Functions
 #2)	Functions
@@ -21,21 +18,12 @@ function CheckFolder([string]$directory, [switch]$create)
 {
 	$exists = Test-Path $directory -PathType Container
 
-	echo "exists: $exists create: $create"	
-
 	if (-NOT($exists) -AND $create) {
-		echo 'here'
 		New-Item -Path $directory -ItemType Directory
-	}
-	else {
-		echo 'not here'
 	}
 
 	return $exists
 }
-
-$result = CheckFolder "C:\Robert" #-create
-echo $result
 
 #Create a function named DisplayFolderStatistics to display folder statistics for a directory/path that is passed 
 #to it. Output should include the name of the folder, number of files in the folder, and total size of all files in 
@@ -60,11 +48,31 @@ function DisplayFolderStatistics([string]$directory) {
 	return $folderInfo
 }
 
-DisplayFolderStatistics "c:\users"
-
 #3)	Main processing
 
 #a) Test for existence of the source folder (using the CheckFolder function).
+
+if (CheckFolder $source) 
+{
+	Write-Host "Testing Destination Directory - $destination"
+
+	if (CheckFolder $destination -create) {
+		$files = Get-ChildItem $source -File
+		$length = $files.Length
+		Write-Host "Got files: $length"
+		
+		foreach ($file in $files)
+		{
+			Copy-Item $file.FullName $destination
+			$name = $file.Name
+			Write-Host "Copying $name from $source to $destination"
+		}
+	}
+}
+else 
+{
+	Write-Host "$source  - does not exist"
+}
 
 
 #b) Test for the existence of the destination folder; create it if it is not found (using the CheckFolder function 
